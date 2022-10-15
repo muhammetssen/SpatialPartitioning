@@ -1,6 +1,9 @@
 using System;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Logging;
+using Unity.Logging.Sinks;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -9,12 +12,24 @@ public class Bootstrap : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("command-line args:");
+        var unixTimestampSec = DateTimeOffset.Now.ToUnixTimeSeconds();
+        var processId = Process.GetCurrentProcess().Id;
+        Log.Logger = new LoggerConfig()
+                .MinimumLevel.Debug()
+                .OutputTemplate("{Timestamp} - {Level} - {Message}")
+                .WriteTo.File($"Logs/Unity-t{unixTimestampSec}-p{processId}.log", minLevel: LogLevel.Debug)
+                .WriteTo.StdOut(outputTemplate: "{Timestamp} - {Level} - {Message}")
+#if UNITY_EDITOR
+                .WriteTo.UnityDebugLog(outputTemplate: "{Message}")
+#endif // UNITY_EDITOR
+                .CreateLogger();
+
+        Log.Info("command-line args:");
         var cliArgs = Environment.GetCommandLineArgs();
         for (int i = 0; i < cliArgs.Length; i++)
         {
             var arg = cliArgs[i];
-            Debug.Log($"[{i}]: {arg}");
+            Log.Info($"[{i}]: {arg}");
 
             // When -serverIndex argument is seen, look for the next value
             if (string.Compare(arg, "-serverIndex", StringComparison.Ordinal) == 0 && cliArgs.Length > i + 1)
@@ -26,14 +41,14 @@ public class Bootstrap : MonoBehaviour
                 {
                     // serverIndex argument can be parsed as an integer
                     // Load the scene that this server is responsible of
-                    ServerIndex = (ushort) serverIndex;
+                    ServerIndex = (ushort)serverIndex;
                     SceneManager.LoadScene(serverIndex + 1, LoadSceneMode.Additive);
-                    Debug.Log("Loaded grid " + serverIndex);
+                    Log.Info("Loaded grid " + serverIndex);
                 }
                 else
                 {
                     // Cannot parse the argument as an integer
-                    Debug.LogWarning("-serverIndex value must be an integer");
+                    Log.Warning("-serverIndex value must be an integer");
                 }
             }
         }
@@ -41,7 +56,7 @@ public class Bootstrap : MonoBehaviour
         if (!IsServer)
         {
             // No serverIndex argument found, this is a client
-            Debug.Log("This is a client app.");
+            Log.Info("This is a client app.");
             new GameObject("ClientBehaviour").AddComponent<ClientBehaviour>();
         }
     }

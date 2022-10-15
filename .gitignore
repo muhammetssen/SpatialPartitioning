@@ -63,3 +63,4 @@ sysinfo.txt
 crashlytics-build.properties
 
 mono_crash*.json
+*.log
