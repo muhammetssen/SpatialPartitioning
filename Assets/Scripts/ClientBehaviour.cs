@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Text;
 
 public class ClientBehaviour : MonoBehaviour
 {
@@ -80,7 +81,14 @@ public class ClientBehaviour : MonoBehaviour
                 else if (cmd == NetworkEvent.Type.Data)
                 {
                     uint number = stream.ReadUInt();
-                    Debug.Log("Server #" + number + " sent ping, timestamp " + Time.time);
+
+                    int pingLen = stream.ReadInt();
+                    var pingNarr = new NativeArray<byte>(pingLen, Allocator.Temp);
+                    stream.ReadBytes(pingNarr);
+                    var pingStr = Encoding.UTF8.GetString(pingNarr.ToArray());
+                    Debug.Log(pingStr);
+                    // Debug.Log("Server #" + number + " sent ping, timestamp " + Time.time);
+                    pingNarr.Dispose();
 
                     // Sent ping (client index) back
                     Driver.BeginSend(NetworkPipeline.Null, m_Connections[i], out var writer);

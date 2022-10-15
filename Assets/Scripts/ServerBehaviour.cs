@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
+using System.Text;
 
 using Unity.Collections;
 using Unity.Networking.Transport;
@@ -84,10 +85,19 @@ public class ServerBehaviour : MonoBehaviour
                     uint number = stream.ReadUInt();
                     Debug.Log("Client #" + number + " sent ping, timestamp " + Time.time);
 
+                    var pingStr = $"I am server #{Bootstrap.ServerIndex} pinging you!";
+                    var pingArr = Encoding.UTF8.GetBytes(pingStr);
+                    var pingLen = pingArr.Length;
+                    var pingNarr = new NativeArray<byte>(pingArr, Allocator.Temp);
+
                     // Send back server index
                     Driver.BeginSend(NetworkPipeline.Null, m_Connections[i], out var writer);
                     writer.WriteUInt(Bootstrap.ServerIndex);
+                    writer.WriteInt(pingLen);
+                    writer.WriteBytes(pingNarr);
                     Driver.EndSend(writer);
+
+                    pingNarr.Dispose();
                 }
                 else if (cmd == NetworkEvent.Type.Disconnect)
                 {
