@@ -107,3 +107,6 @@ dotnet_naming_style.memberfield_naming_style.capitalization = pascal_case
 dotnet_naming_rule.memberfield_naming_rule.symbols = memberfield_naming_symbols
 dotnet_naming_rule.memberfield_naming_rule.style = memberfield_naming_style
 dotnet_naming_rule.memberfield_naming_rule.severity = error
+
+# Default severity for analyzer diagnostics with category 'Style'
+dotnet_analyzer_diagnostic.category-Style.severity = suggestion

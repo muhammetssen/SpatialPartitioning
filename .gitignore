@@ -62,5 +62,13 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
-mono_crash*.json
+mono_crash*
 *.log
+
+*.app
+*_BurstDebugInformation_DoNotShip
+*_BackUpThisFolder_ButDontShipItWithYourGame
+.vsconfig
+.DS_Store
+
+PacketLogs

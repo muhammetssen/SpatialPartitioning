@@ -9,6 +9,7 @@ public class Bootstrap : MonoBehaviour
 {
     public static bool IsServer = false;
     public static ushort ServerIndex = 0;
+    public static ushort ClientIndex = 0;
 
     private void Awake()
     {
@@ -24,20 +25,18 @@ public class Bootstrap : MonoBehaviour
 #endif // UNITY_EDITOR
                 .CreateLogger();
 
-        Log.Info("command-line args:");
         var cliArgs = Environment.GetCommandLineArgs();
+        Log.Info($"command-line args ({cliArgs.Length}):");
         for (int i = 0; i < cliArgs.Length; i++)
         {
             var arg = cliArgs[i];
-            Log.Info($"[{i}]: {arg}");
 
             // When -serverIndex argument is seen, look for the next value
             if (string.Compare(arg, "-serverIndex", StringComparison.Ordinal) == 0 && cliArgs.Length > i + 1)
             {
                 IsServer = true;
 
-                int serverIndex;
-                if (int.TryParse(cliArgs[i + 1], out serverIndex))
+                if (int.TryParse(cliArgs[i + 1], out int serverIndex))
                 {
                     // serverIndex argument can be parsed as an integer
                     // Load the scene that this server is responsible of
@@ -49,6 +48,21 @@ public class Bootstrap : MonoBehaviour
                 {
                     // Cannot parse the argument as an integer
                     Log.Warning("-serverIndex value must be an integer");
+                }
+            }
+
+            // When -clientIndex argument is seen, look for the next value
+            if (string.Compare(arg, "-clientIndex", StringComparison.Ordinal) == 0 && cliArgs.Length > i + 1)
+            {
+                if (int.TryParse(cliArgs[i + 1], out int clientIndex))
+                {
+                    // clientIndex argument can be parsed as an integer
+                    ClientIndex = (ushort)clientIndex;
+                }
+                else
+                {
+                    // Cannot parse the argument as an integer
+                    Log.Warning("-clientIndex value must be an integer");
                 }
             }
         }
