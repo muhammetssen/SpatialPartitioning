@@ -4,62 +4,18 @@ using Unity.Collections;
 using Unity.Networking.Transport;
 using Unity.Logging;
 
-using Unity.Logging;
-
 public class ServerBehaviour : MonoBehaviour
 {
     [SerializeField]
     private BallScript ballPrefab = default;
 
     public NetworkDriver Driver;
-    private NativeArray<byte> m_TempBuffer;
-
     private NativeList<NetworkConnection> m_Connections;
-    private NativeArray<byte> m_TempBuffer;
-
-    private void Awake()
-    {
-        m_TempBuffer = new(1024, Allocator.Persistent);
-        for (int x = 0; x < 1024; x++)
-        {
-            m_TempBuffer[x] = (byte)'x';
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (m_TempBuffer.IsCreated)
-        {
-            m_TempBuffer.Dispose();
-            m_TempBuffer = default;
-        }
-
-        if (Driver.IsCreated)
-        {
-            Driver.Dispose();
-            m_Connections.Dispose();
-        }
-    }
 
     private Bounds m_Bounds;
 
-    private void Awake()
-    {
-        m_TempBuffer = new(1024, Allocator.Persistent);
-        for (int x = 0; x < 1024; x++)
-        {
-            m_TempBuffer[x] = (byte)'x';
-        }
-    }
-
     private void OnDestroy()
     {
-        if (m_TempBuffer.IsCreated)
-        {
-            m_TempBuffer.Dispose();
-            m_TempBuffer = default;
-        }
-
         if (Driver.IsCreated)
         {
             Driver.Dispose();
@@ -71,8 +27,6 @@ public class ServerBehaviour : MonoBehaviour
     {
         if (Bootstrap.IsServer)
         {
-            var settings = new NetworkSettings();
-            settings.WithNetworkConfigParameters(maxFrameTimeMS: 100);
             // This is a server. Set up server.
 
             // Calculate boundaries
@@ -80,8 +34,7 @@ public class ServerBehaviour : MonoBehaviour
             m_Bounds.Expand(new Vector3(0f, 20f, 0f));
 
             var settings = new NetworkSettings();
-            settings.WithNetworkConfigParameters(maxFrameTimeMS: 100, receiveQueueCapacity: 256);
-
+            settings.WithNetworkConfigParameters(maxFrameTimeMS: 100, receiveQueueCapacity: ushort.MaxValue, sendQueueCapacity: ushort.MaxValue);
             Driver = NetworkDriver.Create(settings);
             var endpoint = NetworkEndpoint.AnyIpv4;
             endpoint.Port = 10000;

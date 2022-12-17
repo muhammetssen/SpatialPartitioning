@@ -44,11 +44,6 @@ public class ClientBehaviour : MonoBehaviour
             m_Connections.Add(Driver.Connect(endpoint));
             //m_Connections[i] = Driver.Connect(endpoint);
         }
-
-        // Log Process ID, Instance Type and Assigned Index
-        Log.Debug($"Process ID: {Process.GetCurrentProcess().Id}\n" +
-            $"Instance Type: Client\n" +
-            $"Assigned Index: {Bootstrap.ClientIndex}");
     }
 
     private void Start()
