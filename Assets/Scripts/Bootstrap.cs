@@ -5,11 +5,18 @@ using UnityEngine.SceneManagement;
 using Unity.Logging;
 using Unity.Logging.Sinks;
 
+public enum MessageType : byte
+{
+    Unknown = 0,
+    Ping,
+    BallUpdate
+}
+
 public class Bootstrap : MonoBehaviour
 {
     public static bool IsServer = false;
-    public static ushort ServerIndex = 0;
-    public static ushort ClientIndex = 0;
+    public static int ServerIndex = 0;
+    public static int ClientIndex = 0;
 
     private void Awake()
     {
@@ -40,7 +47,7 @@ public class Bootstrap : MonoBehaviour
                 {
                     // serverIndex argument can be parsed as an integer
                     // Load the scene that this server is responsible of
-                    ServerIndex = (ushort)serverIndex;
+                    ServerIndex = serverIndex;
                     SceneManager.LoadScene(serverIndex + 1, LoadSceneMode.Additive);
                     Log.Info("Loaded grid " + serverIndex);
                 }
@@ -57,7 +64,7 @@ public class Bootstrap : MonoBehaviour
                 if (int.TryParse(cliArgs[i + 1], out int clientIndex))
                 {
                     // clientIndex argument can be parsed as an integer
-                    ClientIndex = (ushort)clientIndex;
+                    ClientIndex = clientIndex;
                 }
                 else
                 {

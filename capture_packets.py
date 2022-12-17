@@ -10,5 +10,5 @@ command = command_string.split(' ')
 if not os.path.exists("PacketLogs") :
   os.mkdir("PacketLogs")
 
-with open(f'./PacketLogs/packetlog_{epoch_time}.txt', 'w+') as f:
+with open(f'./PacketLogs/{epoch_time}.txt', 'w+') as f:
   subprocess.run(command, stdout=f)

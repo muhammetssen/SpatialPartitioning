@@ -72,3 +72,6 @@ mono_crash*
 .DS_Store
 
 PacketLogs
+SummaryLogs
+pid_endpoint.txt
+Recordings/
