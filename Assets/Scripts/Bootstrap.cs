@@ -1,84 +1,23 @@
-using System;
-using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using Unity.Logging;
-using Unity.Logging.Sinks;
 
-public enum MessageType : byte
+using Unity.Networking.Transport;
+
+
+public class BootStrap : MonoBehaviour
 {
-    Unknown = 0,
-    Ping,
-    BallUpdate
-}
 
-public class Bootstrap : MonoBehaviour
-{
-    public static bool IsServer = false;
-    public static int ServerIndex = 0;
-    public static int ClientIndex = 0;
 
-    private void Awake()
+    public static int serverIndex = -1;
+    public static int clientIndex = -1;
+    public static List<uint> serverIndices = new List<uint>{0,1,2,3};
+
+    public static bool isServer {
+        get { return serverIndex != -1; }
+    }
+    void Awake()
     {
-        var unixTimestampSec = DateTimeOffset.Now.ToUnixTimeSeconds();
-        var processId = Process.GetCurrentProcess().Id;
-        Log.Logger = new LoggerConfig()
-                .MinimumLevel.Debug()
-                .OutputTemplate("{Timestamp} - {Level} - {Message}")
-                .WriteTo.File($"Logs/Unity-t{unixTimestampSec}-p{processId}.log", minLevel: LogLevel.Debug)
-                .WriteTo.StdOut(outputTemplate: "{Timestamp} - {Level} - {Message}")
-#if UNITY_EDITOR
-                .WriteTo.UnityDebugLog(outputTemplate: "{Message}")
-#endif // UNITY_EDITOR
-                .CreateLogger();
-
-        var cliArgs = Environment.GetCommandLineArgs();
-        Log.Info($"command-line args ({cliArgs.Length}):");
-        for (int i = 0; i < cliArgs.Length; i++)
-        {
-            var arg = cliArgs[i];
-
-            // When -serverIndex argument is seen, look for the next value
-            if (string.Compare(arg, "-serverIndex", StringComparison.Ordinal) == 0 && cliArgs.Length > i + 1)
-            {
-                IsServer = true;
-
-                if (int.TryParse(cliArgs[i + 1], out int serverIndex))
-                {
-                    // serverIndex argument can be parsed as an integer
-                    // Load the scene that this server is responsible of
-                    ServerIndex = serverIndex;
-                    SceneManager.LoadScene(serverIndex + 1, LoadSceneMode.Additive);
-                    Log.Info("Loaded grid " + serverIndex);
-                }
-                else
-                {
-                    // Cannot parse the argument as an integer
-                    Log.Warning("-serverIndex value must be an integer");
-                }
-            }
-
-            // When -clientIndex argument is seen, look for the next value
-            if (string.Compare(arg, "-clientIndex", StringComparison.Ordinal) == 0 && cliArgs.Length > i + 1)
-            {
-                if (int.TryParse(cliArgs[i + 1], out int clientIndex))
-                {
-                    // clientIndex argument can be parsed as an integer
-                    ClientIndex = clientIndex;
-                }
-                else
-                {
-                    // Cannot parse the argument as an integer
-                    Log.Warning("-clientIndex value must be an integer");
-                }
-            }
-        }
-
-        if (!IsServer)
-        {
-            // No serverIndex argument found, this is a client
-            Log.Info("This is a client app.");
-            new GameObject("ClientBehaviour").AddComponent<ClientBehaviour>();
-        }
+        //TODO parse command line arguments
     }
 }
