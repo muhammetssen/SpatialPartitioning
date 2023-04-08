@@ -104,6 +104,7 @@ public class ServerToServerConnection : MonoBehaviour
                                 this.clientToServerConnection.objectPrefab,
                                 new Vector3(obj.PositionX, obj.PositionY, obj.PositionZ),
                                 Quaternion.identity);
+                            this.clientToServerConnection.myObjects[obj.id].transform.parent = this.clientToServerConnection.transform;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().id = obj.id;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().manager = this.clientToServerConnection;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<Rigidbody>().velocity = new Vector3(obj.VelocityX, obj.VelocityY, obj.VelocityZ);
