@@ -23,6 +23,9 @@ public class CreatePlanes : MonoBehaviour
             for (int column = 0; column < Config.ParcelCount; column++)
             {
                 var plane = Instantiate(this.plane, new Vector3(row * Config.ParcelSize, 0, column * Config.ParcelSize), Quaternion.identity);
+                plane.transform.localScale = new Vector3(Config.ParcelSize / 10, 1, Config.ParcelSize / 10);
+                plane.transform.parent = this.transform;
+
                 PlaneScript planeScript = plane.GetComponent<PlaneScript>();
                 planeScript.row = row;
                 planeScript.column = column;

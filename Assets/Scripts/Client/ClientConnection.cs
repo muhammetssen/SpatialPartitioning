@@ -83,6 +83,7 @@ public class ClientConnection : MonoBehaviour
                         if (!objects.ContainsKey(serializedObject.id))
                         {
                             var cube = Instantiate(Resources.Load<GameObject>("Dummy"));
+                            cube.transform.parent = this.transform;
                             var dummy = cube.GetComponent<Dummy>();
                             dummy.SetText(serializedObject.id.ToString());
                             objects.Add(serializedObject.id, cube);

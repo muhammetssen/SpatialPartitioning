@@ -9,6 +9,7 @@ public class ConnectedTo : MonoBehaviour
     void Start()
     {
         StartCoroutine(UpdateText());
+        transform.position = new Vector3(0, 0,-Config.ParcelSize / 2);
     }
 
     private IEnumerator UpdateText()
