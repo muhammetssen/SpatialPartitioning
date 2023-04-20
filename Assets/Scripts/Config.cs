@@ -6,6 +6,8 @@ public class Config : MonoBehaviour
     public static int ParcelSize = 30;
     public static int ParcelCount = 2;
 
+    public static int ObjectCount = 2;
+
     public static Tuple<int, int> GetParcelIndex(Vector3 position)
     {
         int currentRow = (int)(position.x + Config.ParcelSize / 2) / Config.ParcelSize;

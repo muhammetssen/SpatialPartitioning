@@ -42,7 +42,8 @@ public class ServerToServerConnection : MonoBehaviour
             m_Driver.Listen();
 
         // connect to other known servers
-        foreach (var index in BootStrap.serverIndices)
+        Debug.Log(Bootstrap.serverIndices.ToString());
+        foreach (var index in Bootstrap.serverIndices)
         {
             if (index == this.clientToServerConnection.index) continue;
             var end = NetworkEndPoint.LoopbackIpv4;

@@ -7,16 +7,8 @@ public class CreatePlanes : MonoBehaviour
 {
     public GameObject plane;
     public static List<PlaneScript> planes = new List<PlaneScript>();
-    // Start is called before the first frame update
-    private NetworkDriver m1_Driver;
     void Start()
     {
-         this.m1_Driver = NetworkDriver.Create();
-        NetworkConnection connection = default(NetworkConnection);
-        var endpoint = NetworkEndPoint.LoopbackIpv4;
-        endpoint.Port = 12347;
-        connection = m1_Driver.Connect(endpoint);
-        
 
         for (int row = 0; row < Config.ParcelCount; row++)
         {
@@ -35,15 +27,9 @@ public class CreatePlanes : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     void OnDestroy()
     {
         planes.Clear();
-        m1_Driver.Dispose();
 
     }
 }

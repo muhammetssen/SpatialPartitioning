@@ -5,19 +5,58 @@ using UnityEngine;
 using Unity.Networking.Transport;
 
 
-public class BootStrap : MonoBehaviour
+public class Bootstrap : MonoBehaviour
 {
 
 
     public static int serverIndex = -1;
-    public static int clientIndex = -1;
+    public static int serverCount = 4;
     public static List<uint> serverIndices = new List<uint>{0,1,2,3};
 
-    public static bool isServer {
+    public static bool isServer
+    {
         get { return serverIndex != -1; }
     }
     void Awake()
     {
-        //TODO parse command line arguments
+        string[] args = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "-serverIndex")
+            {
+                if (int.TryParse(args[i + 1], out int ServerIndex))
+                {
+                    serverIndex = ServerIndex;
+                    Debug.Log("Server index: " + serverIndex);
+                }
+            }
+            if (args[i] == "-parcelCount")
+            {
+                if (int.TryParse(args[i + 1], out int ParcelCount)) Config.ParcelCount = ParcelCount;
+            }
+            if (args[i] == "-objectCount")
+            {
+                if (int.TryParse(args[i + 1], out int ObjectCount)) Config.ObjectCount = ObjectCount;
+            }
+        }
+
+        serverCount = Config.ParcelCount * Config.ParcelCount;
+        serverIndices = new List<uint>();
+        for (int j = 0; j < serverCount; j++) serverIndices.Add((uint)j);
+
+    }
+    void Start()
+    {
+        if (isServer)
+        {
+            var serverObject = Instantiate(Resources.Load("Server") as GameObject);
+            serverObject.GetComponent<ClientToServerConnection>().index = (uint)serverIndex;
+        }
+        else
+        {
+            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
+            Debug.Log("Player object: " + playerObject);
+
+        }
     }
 }

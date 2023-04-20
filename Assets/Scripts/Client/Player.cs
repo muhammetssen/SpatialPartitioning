@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     {
         this.ConnectedTo = Instantiate(Resources.Load("ConnectedTo") as GameObject);
         this.ConnectedTo.transform.parent = this.transform;
+        camera = GameObject.Find("Main Camera");
     }
 
     // Update is called once per frame

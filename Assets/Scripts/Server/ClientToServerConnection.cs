@@ -57,15 +57,26 @@ public class ClientToServerConnection : MonoBehaviour
         players = new Dictionary<uint, PlayerClass>();
 
         myObjects = new Dictionary<uint, GameObject>();
-        uint id = getRandom();
-        myObjects[id] = Instantiate(objectPrefab, transform.position, Quaternion.identity);
-        myObjects[id].GetComponent<ObjectScript>().manager = this;
-        myObjects[id].GetComponent<ObjectScript>().id = id;
-        myObjects[id].GetComponent<Rigidbody>().velocity = Vector3.left * 12f + Vector3.forward * 24f;
         Debug.Log($"SERVER-{this.port}: Ready to accept connections on port {this.port}");
-
+        StartCoroutine(waitInit());
 
     }
+
+    private IEnumerator<WaitForSeconds> waitInit()
+    {
+        yield return new WaitForSeconds(5f);
+        for (int i = 0; i < Config.ObjectCount; i++)
+        {
+
+            uint id = getRandom();
+            myObjects[id] = Instantiate(objectPrefab, transform.position, Quaternion.identity);
+            myObjects[id].GetComponent<ObjectScript>().manager = this;
+            myObjects[id].GetComponent<ObjectScript>().id = id;
+            myObjects[id].GetComponent<Rigidbody>().velocity = Vector3.left * 12f + Vector3.forward * 24f;
+        }
+    }
+
+
     private uint getRandom()
     {
         return (uint)Random.Range(1, 1000000);
