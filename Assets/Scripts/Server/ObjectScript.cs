@@ -15,6 +15,7 @@ public class ObjectScript : MonoBehaviour
         if(expectedServerIndex != manager.index)
         {
             manager.serverToServerConnection.SendObjectToServer(this, expectedServerIndex);
+            manager.alertClientsOfObjectRemoval(id);
             manager.myObjects.Remove(id);
             Destroy(gameObject);
         }

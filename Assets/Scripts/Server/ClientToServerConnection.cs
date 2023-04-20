@@ -196,4 +196,16 @@ public class ClientToServerConnection : MonoBehaviour
         transform.position = this.planeCoors;
 
     }
+
+    public void alertClientsOfObjectRemoval(uint id)
+    {
+        for (int i = 0; i < this.m_connections.Length; i++)
+        {
+            if (!this.m_connections[i].IsCreated) continue;
+            m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
+            writer.WriteByte((byte)ServerToClientMessages.ObjectRemoval);
+            writer.WriteUInt(id);
+            m_Driver.EndSend(writer);
+        }
+    }
 }

@@ -13,6 +13,7 @@ public enum ServerToClientMessages : byte
     ServerChange, // connect to another server
     Unknown,
     Welcome, // welcome to the server, here is your id and the location you should be at
+    ObjectRemoval, // remove an object
 }
 
 public class ClientConnection : MonoBehaviour
@@ -104,6 +105,16 @@ public class ClientConnection : MonoBehaviour
                         connection = m1_Driver.Connect(endpoint);
                         ClientConnection.serverIndex = newServerId;
                         break;
+                    
+                    case ServerToClientMessages.ObjectRemoval:
+                        uint objectId = data.ReadUInt();
+                        if (objects.ContainsKey(objectId))
+                        {
+                            Destroy(objects[objectId]);
+                            objects.Remove(objectId);
+                        }
+                        break;
+
                     default:
                         Debug.Log("Client: Received unknown message from server");
                         break;
