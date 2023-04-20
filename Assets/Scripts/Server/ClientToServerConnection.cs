@@ -107,6 +107,11 @@ public class ClientToServerConnection : MonoBehaviour
                     {
                         case ClientToServerMessages.Ping:
                             uint playerId = reader.ReadUInt();
+                            if (!players.ContainsKey(playerId))
+                            {
+                                Debug.Log($"SERVER-{this.port}: Unknown player id: {playerId}");
+                                break;
+                            }
                             players[playerId].position = new Vector3(
                                 reader.ReadFloat(),
                                 reader.ReadFloat(),
