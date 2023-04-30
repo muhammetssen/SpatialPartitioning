@@ -39,7 +39,6 @@ public class ClientToServerConnection : MonoBehaviour
         this.port = Config.GetClient2ServerPort(this.index);
         this.setPlaneCoors();
 
-        this.serverToServerConnection = transform.root.GetComponentInChildren<ServerToServerConnection>();
 
         m_Driver = NetworkDriver.Create();
         var endpoint = NetworkEndPoint.AnyIpv4;
@@ -123,6 +122,14 @@ public class ClientToServerConnection : MonoBehaviour
                                 m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
                                 writer.WriteByte((byte)ServerToClientMessages.ObjectUpdate);
                                 SerializableObject.SerializeObject(myObjects[k]).Serialize(ref writer);
+                                m_Driver.EndSend(writer);
+                            }
+
+                            foreach (var k in serverToServerConnection.otherObjects.Keys)
+                            {
+                                m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
+                                writer.WriteByte((byte)ServerToClientMessages.TemporaryObjectUpdate);
+                                serverToServerConnection.otherObjects[k].Serialize(ref writer);
                                 m_Driver.EndSend(writer);
                             }
 

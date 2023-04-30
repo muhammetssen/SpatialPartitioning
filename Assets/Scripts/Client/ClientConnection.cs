@@ -10,6 +10,7 @@ public enum ServerToClientMessages : byte
 {
     Ping, // hello, are you there? Here is my position
     ObjectUpdate, // position of an object
+    TemporaryObjectUpdate,
     ServerChange, // connect to another server
     Unknown,
     Welcome, // welcome to the server, here is your id and the location you should be at
@@ -21,6 +22,7 @@ public class ClientConnection : MonoBehaviour
     public NetworkDriver m1_Driver;
     public NetworkConnection connection;
     private Dictionary<uint, GameObject> objects = new Dictionary<uint, GameObject>();
+    private Dictionary<uint, GameObject> temporaryObjects = new Dictionary<uint, GameObject>();
 
     public static uint serverIndex = 0;
     private uint id = 0;
@@ -36,6 +38,7 @@ public class ClientConnection : MonoBehaviour
         Debug.Log($"Client: Connected to {endpoint.Port}");
 
         StartCoroutine(SendPingToServer());
+        StartCoroutine(ClearTemporaryObjects());
     }
 
     public void OnDestroy()
@@ -91,6 +94,22 @@ public class ClientConnection : MonoBehaviour
                         }
                         objects[serializedObject.id].transform.position = new Vector3(serializedObject.PositionX, serializedObject.PositionY, serializedObject.PositionZ);
                         break;
+                    
+                    case ServerToClientMessages.TemporaryObjectUpdate:
+                        // Debug.Log("Client: Received object update from server");
+                        var serializedTemporaryObject = new SerializableObject();
+                        // Debug.Log($"Client: Received object update from server: {serializedObject.id}");
+                        serializedTemporaryObject.Deserialize(ref data);
+                        if (!temporaryObjects.ContainsKey(serializedTemporaryObject.id))
+                        {
+                            var cube = Instantiate(Resources.Load<GameObject>("Dummy"));
+                            // cube.transform.parent = this.transform;
+                            var dummy = cube.GetComponent<Dummy>();
+                            dummy.SetText(serializedTemporaryObject.id.ToString());
+                            temporaryObjects.Add(serializedTemporaryObject.id, cube);
+                        }
+                        temporaryObjects[serializedTemporaryObject.id].transform.position = new Vector3(serializedTemporaryObject.PositionX, serializedTemporaryObject.PositionY, serializedTemporaryObject.PositionZ);
+                        break;
 
 
 
@@ -132,6 +151,18 @@ public class ClientConnection : MonoBehaviour
 
     }
 
+    private IEnumerator ClearTemporaryObjects(){
+        while (true)
+        {
+            foreach (var item in temporaryObjects)
+            {
+                Destroy(item.Value);
+                Debug.Log($"Client: Destroyed temporary object {item.Key}");
+            }
+            temporaryObjects.Clear();
+            yield return new WaitForSeconds(Config.UpdateInterval * 10);
+        }
+    }
     private IEnumerator SendPingToServer()
     {
         while (true)
@@ -161,7 +192,7 @@ public class ClientConnection : MonoBehaviour
                 Debug.LogException(ex);
                 // throw;
             }
-            yield return new WaitForSeconds(0.01f);
+            yield return new WaitForSeconds(Config.UpdateInterval);
         }
     }
     private void RegisterMe()

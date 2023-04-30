@@ -3,10 +3,12 @@ using UnityEngine;
 
 public class Config : MonoBehaviour
 {
-    public static int ParcelSize = 30;
+    public const int ParcelSize = 30;
     public static int ParcelCount = 2;
 
     public static int ObjectCount = 2;
+    
+    public static float UpdateInterval = 0.01f;
 
     public static Tuple<int, int> GetParcelIndex(Vector3 position)
     {
@@ -27,5 +29,9 @@ public class Config : MonoBehaviour
     
     public static ushort GetServer2ServerPort(uint serverIndex){
         return (ushort)(20000 + serverIndex);
+    }
+
+    public static Tuple<float, float> GetServerCenter(uint serverIndex){
+        return new Tuple<float, float>((serverIndex / Config.ParcelCount) * Config.ParcelSize, (serverIndex % Config.ParcelCount) * Config.ParcelSize);
     }
 }

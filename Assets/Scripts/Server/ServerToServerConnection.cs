@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -10,12 +11,14 @@ public enum ServerToServerMessages : byte
     BroadcastEvent, // tell this to everyone
     HandoverRequest, // can you take over this object?
     HandoverResponse, // sure I can  / no I can't
+    InBuffer,
     Unknown,
 }
 
 public class ServerToServerConnection : MonoBehaviour
 {
-
+    private const float BUFFER_SIZE = (Config.ParcelSize / 2) * 1.4f; // 1.4 is ~sqrt(2)
+    [SerializeField]
     private ClientToServerConnection clientToServerConnection;
     private NetworkDriver m_Driver;
     private NativeList<NetworkConnection> in_connections;
@@ -27,9 +30,21 @@ public class ServerToServerConnection : MonoBehaviour
     {
         return Config.GetServer2ServerPort(this.clientToServerConnection.index);
     }
+    void DrawCircle(LineRenderer renderer, int steps, float radius){
+        renderer.positionCount = steps + 1;
+        renderer.useWorldSpace = false;
+        renderer.startWidth = 0.2f;
+        renderer.endWidth = 0.2f;
+        for (int i = 0; i < steps + 1; i++)
+        {
+            float angle = i * Mathf.PI * 2 / steps;
+            float x = Mathf.Cos(angle) * radius;
+            float z = Mathf.Sin(angle) * radius;
+            renderer.SetPosition(i, new Vector3(x, 0, z));
+        }
+    }
     void Start()
     {
-        this.clientToServerConnection = transform.root.GetComponentInChildren<ClientToServerConnection>();
         in_connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
         out_connections = new Dictionary<uint, NetworkConnection>();
 
@@ -51,6 +66,9 @@ public class ServerToServerConnection : MonoBehaviour
             var connection = m_Driver.Connect(end);
             out_connections.Add(index, connection);
         }
+        StartCoroutine(BufferCoroutine());
+        StartCoroutine(ClearBufferArea());
+        DrawCircle(this.GetComponent<LineRenderer>(), 50, BUFFER_SIZE);
 
     }
     void OnDestroy()
@@ -109,8 +127,17 @@ public class ServerToServerConnection : MonoBehaviour
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().id = obj.id;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().manager = this.clientToServerConnection;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<Rigidbody>().velocity = new Vector3(obj.VelocityX, obj.VelocityY, obj.VelocityZ);
+                            if(this.otherObjects.ContainsKey(obj.id))
+                            {
+                                this.otherObjects.Remove(obj.id);
+                            }
                             break;
-
+                        
+                        case ServerToServerMessages.InBuffer:
+                            var sharedObject = new SerializableObject();
+                            sharedObject.Deserialize(ref reader);
+                            this.otherObjects[sharedObject.id] = sharedObject;
+                            break;
 
                         default:
                             break;
@@ -136,6 +163,16 @@ public class ServerToServerConnection : MonoBehaviour
         SerializableObject.SerializeObject(o.gameObject).Serialize(ref writer);
         m_Driver.EndSend(writer);
     }
+        public void AlertServerBuffer(ObjectScript o, uint id)
+    {
+        if (!out_connections.ContainsKey(id)) return;
+        if (!out_connections[id].IsCreated) return;
+
+        m_Driver.BeginSend(NetworkPipeline.Null, out_connections[id], out var writer);
+        writer.WriteByte((byte)ServerToServerMessages.InBuffer);
+        SerializableObject.SerializeObject(o.gameObject).Serialize(ref writer);
+        m_Driver.EndSend(writer);
+    }
 
     private void removeConnections()
     {
@@ -147,6 +184,45 @@ public class ServerToServerConnection : MonoBehaviour
                 --i;
             }
         }
+    }
+    private IEnumerator BufferCoroutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(Config.UpdateInterval);
+            foreach (var o in this.clientToServerConnection.myObjects)
+            {
+                foreach (var id in Bootstrap.serverIndices)
+                {
+                    if (id == this.clientToServerConnection.index) continue;
+                    var serverCenter = Config.GetServerCenter(id);
+                    var objectCenter = new Tuple<float, float>(o.Value.transform.position.x, o.Value.transform.position.z);
+                    if (!checkBufferOverlap(serverCenter, objectCenter)) continue;
+                    AlertServerBuffer(o.Value.GetComponent<ObjectScript>(), id);
+                }
+            }
+        }
+    }
+    private bool checkBufferOverlap(Tuple<float, float> server,Tuple<float, float> other, float radius = BUFFER_SIZE){
+        return Math.Sqrt(Math.Pow(server.Item1 - other.Item1, 2) + Math.Pow(server.Item2 - other.Item2, 2)) < radius;
+    }
+
+    private IEnumerator ClearBufferArea(){
+        while (true)
+        {
+            
+            yield return new WaitForSeconds(Config.UpdateInterval * 10);
+            // foreach (var o in this.otherObjects)
+            // {
+            //     bool remove = true; // will be changed with last updated
+            //     if (!remove) continue;
+            //     this.otherObjects.Remove(o.Key);
+            // }
+            this.otherObjects.Clear();
+        }
+
+
+
     }
 
 }
