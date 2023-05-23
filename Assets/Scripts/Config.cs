@@ -10,6 +10,8 @@ public class Config : MonoBehaviour
 
     public static float UpdateInterval = 0.01f;
 
+    public static bool SingleInstance = true;
+
     public static PlaneType planeType = PlaneType.Square;
 
     public static Tuple<int, int> GetParcelIndex(Vector3 position)

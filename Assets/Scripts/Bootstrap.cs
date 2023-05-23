@@ -49,6 +49,19 @@ public class Bootstrap : MonoBehaviour
     {
         InitializeGrid();
 
+        if(Config.SingleInstance){
+            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
+            playerObject.transform.parent = transform.root;
+
+            for (int i = 0; i < serverCount; i++)
+            {
+                var serverObject = Instantiate(Resources.Load("Server") as GameObject);
+                serverObject.GetComponent<ClientToServerConnection>().index = (uint)i;
+                serverObject.transform.parent = transform.root;
+                Debug.Log("Server index: " + i);
+            }
+        }
+        else{
         if (isServer)
         {
             var serverObject = Instantiate(Resources.Load("Server") as GameObject);
@@ -56,9 +69,9 @@ public class Bootstrap : MonoBehaviour
         }
         else
         {
-            // var playerObject = Instantiate(Resources.Load("Player") as GameObject);
-            // Debug.Log("Player object: " + playerObject);
-
+            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
+            Debug.Log("Player object: " + playerObject);
+        }
         }
     }
     void InitializeGrid(){
