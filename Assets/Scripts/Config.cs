@@ -7,8 +7,10 @@ public class Config : MonoBehaviour
     public static int ParcelCount = 2;
 
     public static int ObjectCount = 2;
-    
+
     public static float UpdateInterval = 0.01f;
+
+    public static PlaneType planeType = PlaneType.Square;
 
     public static Tuple<int, int> GetParcelIndex(Vector3 position)
     {
@@ -23,15 +25,24 @@ public class Config : MonoBehaviour
         return (uint)(parcelIndex.Item1 * Config.ParcelCount + parcelIndex.Item2);
     }
 
-    public static ushort GetClient2ServerPort(uint serverIndex){
+    public static ushort GetClient2ServerPort(uint serverIndex)
+    {
         return (ushort)(10000 + serverIndex);
     }
-    
-    public static ushort GetServer2ServerPort(uint serverIndex){
+
+    public static ushort GetServer2ServerPort(uint serverIndex)
+    {
         return (ushort)(20000 + serverIndex);
     }
 
-    public static Tuple<float, float> GetServerCenter(uint serverIndex){
+    public static Tuple<float, float> GetServerCenter(uint serverIndex)
+    {
         return new Tuple<float, float>((serverIndex / Config.ParcelCount) * Config.ParcelSize, (serverIndex % Config.ParcelCount) * Config.ParcelSize);
+    }
+
+    public enum PlaneType
+    {
+        Square,
+        Hexagon
     }
 }

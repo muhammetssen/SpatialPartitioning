@@ -157,7 +157,7 @@ public class ClientConnection : MonoBehaviour
             foreach (var item in temporaryObjects)
             {
                 Destroy(item.Value);
-                Debug.Log($"Client: Destroyed temporary object {item.Key}");
+                // Debug.Log($"Client: Destroyed temporary object {item.Key}");
             }
             temporaryObjects.Clear();
             yield return new WaitForSeconds(Config.UpdateInterval * 10);

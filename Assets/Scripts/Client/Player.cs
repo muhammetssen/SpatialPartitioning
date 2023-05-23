@@ -25,7 +25,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 10, 0, Input.GetAxis("Vertical") * Time.deltaTime * 10);
+        uint speed = 20;
+        transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * speed, 0, Input.GetAxis("Vertical") * Time.deltaTime * speed);
         this.ConnectedTo.transform.position = new Vector3(transform.position.x, 0, transform.position.z - 1);
 
         // Debug.Log("Player position: " + transform.position);

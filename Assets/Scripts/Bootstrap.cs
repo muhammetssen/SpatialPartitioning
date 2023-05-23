@@ -47,6 +47,8 @@ public class Bootstrap : MonoBehaviour
     }
     void Start()
     {
+        InitializeGrid();
+
         if (isServer)
         {
             var serverObject = Instantiate(Resources.Load("Server") as GameObject);
@@ -54,9 +56,20 @@ public class Bootstrap : MonoBehaviour
         }
         else
         {
-            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
-            Debug.Log("Player object: " + playerObject);
+            // var playerObject = Instantiate(Resources.Load("Player") as GameObject);
+            // Debug.Log("Player object: " + playerObject);
 
         }
+    }
+    void InitializeGrid(){
+        switch(Config.planeType){
+            case Config.PlaneType.Square:
+                var squareGrid = Instantiate(Resources.Load("SquareGrid") as GameObject);
+                break;
+            case Config.PlaneType.Hexagon:
+                var hexagonGrid = Instantiate(Resources.Load("HexGrid") as GameObject);
+                break;
+        }
+
     }
 }
