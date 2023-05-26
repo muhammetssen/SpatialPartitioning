@@ -17,7 +17,7 @@ public enum ServerToServerMessages : byte
 
 public class ServerToServerConnection : MonoBehaviour
 {
-    private const float BUFFER_SIZE = (Config.ParcelSize / 2) * 1.4f; // 1.4 is ~sqrt(2)
+    private float BUFFER_SIZE;
     [SerializeField]
     private ClientToServerConnection clientToServerConnection;
     private NetworkDriver m_Driver;
@@ -25,6 +25,11 @@ public class ServerToServerConnection : MonoBehaviour
     private Dictionary<uint, NetworkConnection> out_connections;
 
     public Dictionary<uint, SerializableObject> otherObjects = new Dictionary<uint, SerializableObject>();
+
+    public ServerToServerConnection()
+    {
+        BUFFER_SIZE = Config.GetBufferSize();
+    }
 
     public ushort getPort()
     {
@@ -68,7 +73,7 @@ public class ServerToServerConnection : MonoBehaviour
         }
         StartCoroutine(BufferCoroutine());
         StartCoroutine(ClearBufferArea());
-        // DrawCircle(this.GetComponent<LineRenderer>(), 50, BUFFER_SIZE);
+        DrawCircle(this.GetComponent<LineRenderer>(), 50, BUFFER_SIZE);
 
     }
     void OnDestroy()
@@ -197,13 +202,13 @@ public class ServerToServerConnection : MonoBehaviour
                     if (id == this.clientToServerConnection.index) continue;
                     var serverCenter = Config.GetServerCenter(id);
                     var objectCenter = new Tuple<float, float>(o.Value.transform.position.x, o.Value.transform.position.z);
-                    if (!checkBufferOverlap(serverCenter, objectCenter)) continue;
+                    if (!checkBufferOverlap(serverCenter, objectCenter, BUFFER_SIZE)) continue;
                     AlertServerBuffer(o.Value.GetComponent<ObjectScript>(), id);
                 }
             }
         }
     }
-    private bool checkBufferOverlap(Tuple<float, float> server,Tuple<float, float> other, float radius = BUFFER_SIZE){
+    private bool checkBufferOverlap(Tuple<float, float> server,Tuple<float, float> other, float radius){
         return Math.Sqrt(Math.Pow(server.Item1 - other.Item1, 2) + Math.Pow(server.Item2 - other.Item2, 2)) < radius;
     }
 

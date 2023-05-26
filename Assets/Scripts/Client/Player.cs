@@ -30,15 +30,12 @@ public class Player : MonoBehaviour
         this.ConnectedTo.transform.position = new Vector3(transform.position.x, 0, transform.position.z - 1);
 
         // Debug.Log("Player position: " + transform.position);
-        camera.transform.position = new Vector3(transform.position.x, 80, transform.position.z);
+        camera.transform.position = new Vector3(transform.position.x, 140, transform.position.z);
 
-        int currentRow = (int)(transform.position.x + Config.ParcelSize / 2) / Config.ParcelSize;
-        int currentCol = (int)(transform.position.z + Config.ParcelSize / 2) / Config.ParcelSize;
-        // Debug.Log("Player is in parcel: " + currentRow + " " + currentCol);
-        Debug.Log("Player is in parcel: " + this.ParcelIndex);
     }
 
-    void DrawCircle(LineRenderer renderer, int steps, float radius){
+    void DrawCircle(LineRenderer renderer, int steps, float radius)
+    {
         renderer.positionCount = steps + 1;
         renderer.useWorldSpace = false;
         renderer.startWidth = 0.2f;
@@ -51,16 +48,4 @@ public class Player : MonoBehaviour
             renderer.SetPosition(i, new Vector3(x, 0, z));
         }
     }
-    public int ParcelIndex {
-        get {
-            if(Config.planeType == Config.PlaneType.Hexagon)
-                return HexCoordinates.FromPosition(transform.position).ParcelIndex;
-            else if(Config.planeType == Config.PlaneType.Square)
-                return SquareCoordinates.FromPosition(transform.position).ParcelIndex;
-            else{
-                Debug.LogError("Unknown plane type");
-                return -1;
-            }
-        }
-    } 
 }

@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
 
 [System.Serializable]
-public struct HexCoordinates {
-
+public class HexCoordinates {
 	[SerializeField]
 	private int x, z;
 
-	public int X {
+    public int X {
 		get {
 			return x;
 		}
@@ -57,7 +56,6 @@ public struct HexCoordinates {
 				iZ = -iX - iY;
 			}
 		}
-
 		return new HexCoordinates(iX, iZ);
 	}
 
@@ -71,7 +69,24 @@ public struct HexCoordinates {
 	}
 	public int ParcelIndex {
 		get {
-			return Z * Config.ParcelCount + X + Z / 2;
+			return Z * Config.ParcelCount + X ;
+			// return Z * Config.ParcelCount + X + Z / 2;
+		}
+	}
+
+	public static HexCoordinates FromParcelIndex (int index) {
+		int z = index / Config.ParcelCount;
+		int x = index % Config.ParcelCount;
+		return new HexCoordinates(x, z);
+	}
+
+	public Vector3 position {
+		get {
+			return new Vector3(
+				(x + z * 0.5f - z / 2) * (HexMetrics.innerRadius * 2f),
+				0,
+				z * (HexMetrics.outerRadius * 1.5f)
+			);
 		}
 	}
 }

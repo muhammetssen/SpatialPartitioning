@@ -69,6 +69,8 @@ public class ClientToServerConnection : MonoBehaviour
 
             uint id = getRandom();
             myObjects[id] = Instantiate(objectPrefab, transform.position, Quaternion.identity);
+            // slighly randomize the position
+            myObjects[id].transform.position += Vector3.right * Random.Range(-1f, 1f) + Vector3.forward * Random.Range(-1f, 1f);
             myObjects[id].GetComponent<ObjectScript>().manager = this;
             myObjects[id].GetComponent<ObjectScript>().id = id;
             myObjects[id].GetComponent<Rigidbody>().velocity = Vector3.left * 12f + Vector3.forward * 24f;
@@ -200,11 +202,11 @@ public class ClientToServerConnection : MonoBehaviour
         int r = (int)(index / Config.ParcelCount);
         int c = (int)(index % Config.ParcelCount);
 
-        this.planeCoors = new Vector3(
-            r * Config.ParcelSize,
-            0,
-            c * Config.ParcelSize
-        );
+        if (Config.planeType == Config.PlaneType.Hexagon)
+            this.planeCoors = HexCoordinates.FromParcelIndex((int)index).position;
+        else
+            this.planeCoors = SquareCoordinates.FromParcelIndex((int)index).position;
+
         transform.position = this.planeCoors;
 
     }

@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class Config : MonoBehaviour
 {
-    public const int ParcelSize = 30;
+    public const int ParcelSize = 50;
     public static int ParcelCount = 2;
 
-    public static int ObjectCount = 2;
+    public static int ObjectCount = 10;
 
     public static float UpdateInterval = 0.01f;
 
@@ -14,17 +14,14 @@ public class Config : MonoBehaviour
 
     public static PlaneType planeType = PlaneType.Square;
 
-    public static Tuple<int, int> GetParcelIndex(Vector3 position)
-    {
-        int currentRow = (int)(position.x + Config.ParcelSize / 2) / Config.ParcelSize;
-        int currentCol = (int)(position.z + Config.ParcelSize / 2) / Config.ParcelSize;
-        return new Tuple<int, int>(currentRow, currentCol);
-    }
-
     public static uint GetParcelId(Vector3 position)
     {
-        var parcelIndex = GetParcelIndex(position);
-        return (uint)(parcelIndex.Item1 * Config.ParcelCount + parcelIndex.Item2);
+        if (Config.planeType == Config.PlaneType.Hexagon)
+            return (uint)HexCoordinates.FromPosition(position).ParcelIndex;
+        else if (Config.planeType == Config.PlaneType.Square)
+            return (uint)SquareCoordinates.FromPosition(position).ParcelIndex;
+        else
+            throw new Exception("Invalid plane type");
     }
 
     public static ushort GetClient2ServerPort(uint serverIndex)
@@ -42,6 +39,15 @@ public class Config : MonoBehaviour
         return new Tuple<float, float>((serverIndex / Config.ParcelCount) * Config.ParcelSize, (serverIndex % Config.ParcelCount) * Config.ParcelSize);
     }
 
+    public static float GetBufferSize()
+    {
+        if (Config.planeType == Config.PlaneType.Hexagon)
+            return Config.ParcelSize * 1.1f;
+        else if (Config.planeType == Config.PlaneType.Square)
+            return Config.ParcelSize * 0.9f;
+        else
+            throw new Exception("Invalid plane type");
+    }
     public enum PlaneType
     {
         Square,

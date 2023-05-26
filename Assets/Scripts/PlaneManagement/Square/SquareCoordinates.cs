@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct SquareCoordinates {
+public class SquareCoordinates {
     private int x, z;
 
 	public int X {
@@ -28,6 +28,22 @@ public struct SquareCoordinates {
 	public int ParcelIndex {
 		get {
 			return Z * Config.ParcelCount + X;
+		}
+	}
+
+		public static SquareCoordinates FromParcelIndex (int index) {
+		int z = index / Config.ParcelCount;
+		int x = index - z * Config.ParcelCount;
+		return new SquareCoordinates(x, z);
+	}
+
+	public Vector3 position {
+		get {
+			return new Vector3(
+				X * Config.ParcelSize,
+				0,
+				Z * Config.ParcelSize
+			);
 		}
 	}
 }
