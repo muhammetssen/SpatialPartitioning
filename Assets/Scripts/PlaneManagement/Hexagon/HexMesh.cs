@@ -45,6 +45,11 @@ public class HexMesh : MonoBehaviour {
 			);
 			AddTriangleColor(cell.color);
 		}
+		// we will divide the hexagon into 6 areas
+		Debug.DrawLine(center + HexMetrics.cornerDict[Corners.Top], center + HexMetrics.cornerDict[Corners.Bottom], Color.red, 100f);
+		Debug.DrawLine(center + HexMetrics.cornerDict[Corners.TopRight], center + HexMetrics.cornerDict[Corners.TopLeft], Color.blue, 100f);
+		Debug.DrawLine(center + HexMetrics.cornerDict[Corners.BottomLeft], center + HexMetrics.cornerDict[Corners.BottomRight], Color.green, 100f);
+
 	}
 
 	void AddTriangle (Vector3 v1, Vector3 v2, Vector3 v3) {

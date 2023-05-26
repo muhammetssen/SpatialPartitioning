@@ -69,4 +69,9 @@ public struct HexCoordinates {
 	public string ToStringOnSeparateLines () {
 		return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
 	}
+	public int ParcelIndex {
+		get {
+			return Z * Config.ParcelCount + X + Z / 2;
+		}
+	}
 }

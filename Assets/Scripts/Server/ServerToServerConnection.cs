@@ -68,7 +68,7 @@ public class ServerToServerConnection : MonoBehaviour
         }
         StartCoroutine(BufferCoroutine());
         StartCoroutine(ClearBufferArea());
-        DrawCircle(this.GetComponent<LineRenderer>(), 50, BUFFER_SIZE);
+        // DrawCircle(this.GetComponent<LineRenderer>(), 50, BUFFER_SIZE);
 
     }
     void OnDestroy()
