@@ -54,7 +54,7 @@ public class ServerToServerConnection : MonoBehaviour
         out_connections = new Dictionary<uint, NetworkConnection>();
 
         m_Driver = NetworkDriver.Create();
-        var endpoint = NetworkEndPoint.AnyIpv4;
+        var endpoint = NetworkEndpoint.AnyIpv4;
         endpoint.Port = getPort();
         if (m_Driver.Bind(endpoint) != 0)
             Debug.Log($"Failed to bind to port {endpoint.Port}");
@@ -62,11 +62,10 @@ public class ServerToServerConnection : MonoBehaviour
             m_Driver.Listen();
 
         // connect to other known servers
-        Debug.Log(Bootstrap.serverIndices.ToString());
         foreach (var index in Bootstrap.serverIndices)
         {
             if (index == this.clientToServerConnection.index) continue;
-            var end = NetworkEndPoint.LoopbackIpv4;
+            var end = NetworkEndpoint.LoopbackIpv4;
             end.Port = Config.GetServer2ServerPort(index);
             var connection = m_Driver.Connect(end);
             out_connections.Add(index, connection);

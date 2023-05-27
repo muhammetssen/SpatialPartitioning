@@ -11,7 +11,7 @@ public class Bootstrap : MonoBehaviour
 
     public static int serverIndex = -1;
     public static int serverCount = 4;
-    public static List<uint> serverIndices = new List<uint>{0,1,2,3};
+    public static List<uint> serverIndices = new List<uint> { 0, 1, 2, 3 };
 
     public static bool isServer
     {
@@ -27,7 +27,7 @@ public class Bootstrap : MonoBehaviour
                 if (int.TryParse(args[i + 1], out int ServerIndex))
                 {
                     serverIndex = ServerIndex;
-                    Debug.Log("Server index: " + serverIndex);
+                    // Debug.Log("Server index: " + serverIndex);
                 }
             }
             if (args[i] == "-parcelCount")
@@ -49,33 +49,43 @@ public class Bootstrap : MonoBehaviour
     {
         InitializeGrid();
 
-        if(Config.SingleInstance){
-            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
-            playerObject.transform.parent = transform.root;
+        if (Config.SingleInstance)
+        {
 
+#if UNITY_EDITOR
             for (int i = 0; i < serverCount; i++)
             {
+                Debug.Log("Creating server with index: " + i);
                 var serverObject = Instantiate(Resources.Load("Server") as GameObject);
                 serverObject.GetComponent<ClientToServerConnection>().index = (uint)i;
                 serverObject.transform.parent = transform.root;
-                Debug.Log("Server index: " + i);
             }
-        }
-        else{
-        if (isServer)
-        {
-            var serverObject = Instantiate(Resources.Load("Server") as GameObject);
-            serverObject.GetComponent<ClientToServerConnection>().index = (uint)serverIndex;
+            System.Threading.Thread.Sleep(1000);
+#else
+                Debug.Log("Running in build");
+#endif
+            // sleep for 1 second to allow all servers to start
+            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
+            playerObject.transform.parent = transform.root;
         }
         else
         {
-            var playerObject = Instantiate(Resources.Load("Player") as GameObject);
-            Debug.Log("Player object: " + playerObject);
-        }
+            if (isServer)
+            {
+                var serverObject = Instantiate(Resources.Load("Server") as GameObject);
+                serverObject.GetComponent<ClientToServerConnection>().index = (uint)serverIndex;
+            }
+            else
+            {
+                var playerObject = Instantiate(Resources.Load("Player") as GameObject);
+                Debug.Log("Player object: " + playerObject);
+            }
         }
     }
-    void InitializeGrid(){
-        switch(Config.planeType){
+    void InitializeGrid()
+    {
+        switch (Config.planeType)
+        {
             case Config.PlaneType.Square:
                 var squareGrid = Instantiate(Resources.Load("SquareGrid") as GameObject);
                 break;

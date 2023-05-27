@@ -28,9 +28,15 @@ public class ClientConnection : MonoBehaviour
     private uint id = 0;
     void Start()
     {
+        var port = Config.GetClient2ServerPort(serverIndex);
+#if UNITY_WEBGL
+        m1_Driver = NetworkDriver.Create(new WebSocketNetworkInterface());
+#else
         m1_Driver = NetworkDriver.Create();
-        var endpoint = NetworkEndPoint.LoopbackIpv4;
-        endpoint.Port = Config.GetClient2ServerPort(serverIndex);
+#endif
+        var endpoint = NetworkEndpoint.LoopbackIpv4;
+        endpoint.Port = port;
+        Debug.Log($"Client: Connecting to {endpoint.Port}");
         connection = default(NetworkConnection);
         connection = m1_Driver.Connect(endpoint);
         if (!connection.IsCreated)
@@ -69,15 +75,11 @@ public class ClientConnection : MonoBehaviour
                         Debug.Log("Client: Received ping from server");
                         break;
 
-
-
                     case ServerToClientMessages.Welcome:
                         // Debug.Log("Client: Received welcome from server");
                         this.id = data.ReadUInt();
                         Debug.Log($"Client: Received welcome from server: {this.id}");
                         break;
-
-
 
                     case ServerToClientMessages.ObjectUpdate:
                         // Debug.Log("Client: Received object update from server");
@@ -94,7 +96,7 @@ public class ClientConnection : MonoBehaviour
                         }
                         objects[serializedObject.id].transform.position = new Vector3(serializedObject.PositionX, serializedObject.PositionY, serializedObject.PositionZ);
                         break;
-                    
+
                     case ServerToClientMessages.TemporaryObjectUpdate:
                         // Debug.Log("Client: Received object update from server");
                         var serializedTemporaryObject = new SerializableObject();
@@ -115,8 +117,9 @@ public class ClientConnection : MonoBehaviour
 
                     case ServerToClientMessages.ServerChange:
                         uint newServerId = data.ReadUInt();
-                        var endpoint = NetworkEndPoint.LoopbackIpv4;
+                        var endpoint = NetworkEndpoint.LoopbackIpv4;
                         endpoint.Port = (ushort)Config.GetClient2ServerPort(newServerId);
+                        Debug.Log($"Client: Received server change from server: {newServerId} {endpoint.Port}");
 
                         connection = default(NetworkConnection);
                         connection.Disconnect(m1_Driver);
@@ -124,7 +127,7 @@ public class ClientConnection : MonoBehaviour
                         connection = m1_Driver.Connect(endpoint);
                         ClientConnection.serverIndex = newServerId;
                         break;
-                    
+
                     case ServerToClientMessages.ObjectRemoval:
                         uint objectId = data.ReadUInt();
                         if (objects.ContainsKey(objectId))
@@ -151,7 +154,8 @@ public class ClientConnection : MonoBehaviour
 
     }
 
-    private IEnumerator ClearTemporaryObjects(){
+    private IEnumerator ClearTemporaryObjects()
+    {
         while (true)
         {
             foreach (var item in temporaryObjects)
@@ -171,11 +175,11 @@ public class ClientConnection : MonoBehaviour
             try
             {
                 m1_Driver.BeginSend(NetworkPipeline.Null, connection, out var writer);
-                if (!writer.IsCreated)
-                {
-                    Debug.LogError("Writer is not created");
-                    throw new System.Exception("Writer is not created");
-                }
+                // if (!writer.IsCreated)
+                // {
+                //     Debug.LogError("Writer is not created");
+                //     throw new System.Exception("Writer is not created");
+                // }
                 writer.WriteByte((byte)ClientToServerMessages.Ping);
                 // send id
                 writer.WriteUInt(this.id);

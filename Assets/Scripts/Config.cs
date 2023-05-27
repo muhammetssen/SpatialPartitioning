@@ -4,7 +4,7 @@ using UnityEngine;
 public class Config : MonoBehaviour
 {
     public const int ParcelSize = 50;
-    public static int ParcelCount = 2;
+    public static int ParcelCount = 3;
 
     public static int ObjectCount = 10;
 
@@ -12,7 +12,7 @@ public class Config : MonoBehaviour
 
     public static bool SingleInstance = true;
 
-    public static PlaneType planeType = PlaneType.Square;
+    public static PlaneType planeType = PlaneType.Hexagon;
 
     public static uint GetParcelId(Vector3 position)
     {
@@ -25,8 +25,13 @@ public class Config : MonoBehaviour
     }
 
     public static ushort GetClient2ServerPort(uint serverIndex)
-    {
-        return (ushort)(10000 + serverIndex);
+    {   
+        var p = (ushort)(10000 + serverIndex*2);
+        #if UNITY_WEBGL
+            return (ushort)(p + 1);
+        #else
+            return p;
+        #endif
     }
 
     public static ushort GetServer2ServerPort(uint serverIndex)

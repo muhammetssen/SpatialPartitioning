@@ -31,32 +31,44 @@ public class ClientToServerConnection : MonoBehaviour
     [SerializeField]
     public Vector3 planeCoors;
     private Dictionary<uint, PlayerClass> players;
-    private NetworkDriver m_Driver;
+    private MultiNetworkDriver m_Driver;
     private NativeList<NetworkConnection> m_connections;
     public ServerToServerConnection serverToServerConnection;
     void Start()
     {
-        this.port = Config.GetClient2ServerPort(this.index);
+        this.port = (ushort)(10000 + this.index*2);
         this.setPlaneCoors();
 
+        var udpDriver = NetworkDriver.Create();
+        udpDriver.Bind(NetworkEndpoint.AnyIpv4.WithPort(this.port));
+        udpDriver.Listen();
 
-        m_Driver = NetworkDriver.Create();
-        var endpoint = NetworkEndPoint.AnyIpv4;
+        var wsDriver = NetworkDriver.Create(new WebSocketNetworkInterface());
+        wsDriver.Bind(NetworkEndpoint.AnyIpv4.WithPort((ushort)(this.port+1)));
+        wsDriver.Listen();
 
-        endpoint.Port = (ushort)this.port;
-        if (m_Driver.Bind(endpoint) != 0)
-            Debug.Log($"Failed to bind to port {this.port}");
-        else
-        {
-            m_Driver.Listen();
-            Debug.Log($"SERVER-{this.port}: Listening on port {this.port}");
-        }
+        m_Driver = MultiNetworkDriver.Create();
+        m_Driver.AddDriver(udpDriver);
+        m_Driver.AddDriver(wsDriver);
+
+
+        // m_Driver = NetworkDriver.Create();
+        // var endpoint = NetworkEndpoint.AnyIpv4;
+
+        // endpoint.Port = (ushort)this.port;
+        // if (m_Driver.Bind(endpoint) != 0)
+        //     Debug.Log($"Failed to bind to port {this.port}");
+        // else
+        // {
+        //     m_Driver.Listen();
+        //     Debug.Log($"SERVER-{this.port}: Listening on port {this.port}");
+        // }
 
         m_connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
         players = new Dictionary<uint, PlayerClass>();
 
         myObjects = new Dictionary<uint, GameObject>();
-        Debug.Log($"SERVER-{this.port}: Ready to accept connections on port {this.port}");
+        Debug.Log($"SERVER-{this.port}: Ready to accept connections on port {this.port} and {this.port+1}");
         StartCoroutine(waitInit());
 
     }
@@ -173,7 +185,8 @@ public class ClientToServerConnection : MonoBehaviour
                 else if (cmd == NetworkEvent.Type.Disconnect)
                 {
                     Debug.Log("Client disconnected from server");
-                    m_connections[i].Disconnect(m_Driver);
+                    // m_connections[i].Disconnect(m_Driver);
+                    m_connections[i] = default(NetworkConnection);
                 }
             }
         }

@@ -15,7 +15,7 @@ public struct SerializableObject : ISerializedObject
     public float VelocityY;
     public float VelocityZ;
 
-    public void Serialize(ref Unity.Networking.Transport.DataStreamWriter writer)
+    public void Serialize(ref Unity.Collections.DataStreamWriter writer)
     {
         writer.WriteUInt(id);
 
@@ -27,7 +27,7 @@ public struct SerializableObject : ISerializedObject
         writer.WriteFloat(VelocityY);
         writer.WriteFloat(VelocityZ);
     }
-    public void Deserialize(ref Unity.Networking.Transport.DataStreamReader reader)
+    public void Deserialize(ref Unity.Collections.DataStreamReader reader)
     {
         id = reader.ReadUInt();
 
