@@ -62,9 +62,8 @@ public class Bootstrap : MonoBehaviour
             }
             System.Threading.Thread.Sleep(1000);
 #else
-                Debug.Log("Running in build");
+            Debug.Log("Running in build");
 #endif
-            // sleep for 1 second to allow all servers to start
             var playerObject = Instantiate(Resources.Load("Player") as GameObject);
             playerObject.transform.parent = transform.root;
         }
