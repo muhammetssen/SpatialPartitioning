@@ -34,8 +34,10 @@ public class ClientConnection : MonoBehaviour
 #else
         m1_Driver = NetworkDriver.Create();
 #endif
-        var endpoint = NetworkEndpoint.LoopbackIpv4;
-        endpoint.Port = port;
+        // var endpoint = NetworkEndpoint.LoopbackIpv4;
+        // use server ip address
+        var endpoint = NetworkEndpoint.Parse(Config.ServerIP, port);
+        Debug.Log($"Client: Connecting to {endpoint.Address}:{endpoint.Port}");
         Debug.Log($"Client: Connecting to {endpoint.Port}");
         connection = default(NetworkConnection);
         connection = m1_Driver.Connect(endpoint);
@@ -117,8 +119,8 @@ public class ClientConnection : MonoBehaviour
 
                     case ServerToClientMessages.ServerChange:
                         uint newServerId = data.ReadUInt();
-                        var endpoint = NetworkEndpoint.LoopbackIpv4;
-                        endpoint.Port = (ushort)Config.GetClient2ServerPort(newServerId);
+                        var endpoint = NetworkEndpoint.Parse(Config.ServerIP, (ushort)Config.GetClient2ServerPort(newServerId));
+                        // endpoint.Port = (ushort)Config.GetClient2ServerPort(newServerId);
                         Debug.Log($"Client: Received server change from server: {newServerId} {endpoint.Port}");
 
                         connection = default(NetworkConnection);
