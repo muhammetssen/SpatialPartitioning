@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-
 public class PlayerClass
 {
     public uint id { get; set; }
@@ -18,12 +17,12 @@ public enum ClientToServerMessages : byte
 {
     Ping, // hello, are you there?
     RegisterMe,
-
 }
 
 public class ClientToServerConnection : MonoBehaviour
 {
     [SerializeField]
+    const float AOI = 10f;
     public uint index = 0;
     public GameObject objectPrefab;
     public Dictionary<uint, GameObject> myObjects;
@@ -36,7 +35,7 @@ public class ClientToServerConnection : MonoBehaviour
     public ServerToServerConnection serverToServerConnection;
     void Start()
     {
-        this.port = (ushort)(10000 + this.index*2);
+        this.port = (ushort)(10000 + this.index * 2);
         this.setPlaneCoors();
 
         var udpDriver = NetworkDriver.Create();
@@ -44,7 +43,7 @@ public class ClientToServerConnection : MonoBehaviour
         udpDriver.Listen();
 
         var wsDriver = NetworkDriver.Create(new WebSocketNetworkInterface());
-        wsDriver.Bind(NetworkEndpoint.AnyIpv4.WithPort((ushort)(this.port+1)));
+        wsDriver.Bind(NetworkEndpoint.AnyIpv4.WithPort((ushort)(this.port + 1)));
         wsDriver.Listen();
 
         m_Driver = MultiNetworkDriver.Create();
@@ -68,7 +67,7 @@ public class ClientToServerConnection : MonoBehaviour
         players = new Dictionary<uint, PlayerClass>();
 
         myObjects = new Dictionary<uint, GameObject>();
-        Debug.Log($"SERVER-{this.port}: Ready to accept connections on port {this.port} and {this.port+1}");
+        Debug.Log($"SERVER-{this.port}: Ready to accept connections on port {this.port} and {this.port + 1}");
         StartCoroutine(waitInit());
 
     }
@@ -78,7 +77,6 @@ public class ClientToServerConnection : MonoBehaviour
         yield return new WaitForSeconds(5f);
         for (int i = 0; i < Config.ObjectCount; i++)
         {
-
             uint id = getRandom();
             myObjects[id] = Instantiate(objectPrefab, transform.position, Quaternion.identity);
             // slighly randomize the position
@@ -88,7 +86,6 @@ public class ClientToServerConnection : MonoBehaviour
             myObjects[id].GetComponent<Rigidbody>().velocity = Vector3.left * 12f + Vector3.forward * 24f;
         }
     }
-
 
     private uint getRandom()
     {
@@ -133,6 +130,7 @@ public class ClientToServerConnection : MonoBehaviour
 
                             foreach (var k in myObjects.Keys)
                             {
+                                if (!DecideUpdate(players[playerId].position, myObjects[k].transform.position)) continue;
                                 m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
                                 writer.WriteByte((byte)ServerToClientMessages.ObjectUpdate);
                                 SerializableObject.SerializeObject(myObjects[k]).Serialize(ref writer);
@@ -141,6 +139,9 @@ public class ClientToServerConnection : MonoBehaviour
 
                             foreach (var k in serverToServerConnection.otherObjects.Keys)
                             {
+                                SerializableObject obj = serverToServerConnection.otherObjects[k];
+                                Vector3 pos = new Vector3(obj.PositionX, obj.PositionY, obj.PositionZ);
+                                if (!DecideUpdate(players[playerId].position, pos)) continue;
                                 m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
                                 writer.WriteByte((byte)ServerToClientMessages.TemporaryObjectUpdate);
                                 serverToServerConnection.otherObjects[k].Serialize(ref writer);
@@ -192,7 +193,13 @@ public class ClientToServerConnection : MonoBehaviour
         }
 
     }
-
+    private bool DecideUpdate(Vector3 playerPos, Vector3 objectPos)
+    {
+        if (!(Config.SolutionType == SolutionTypes.NaiveWithAOI || Config.SolutionType == SolutionTypes.ServerBufferingWithAOI)) return true;
+        float distance = Vector3.Distance(playerPos, objectPos);
+        if (distance <= AOI) return true;
+        return false;
+    }
     void OnDestroy()
     {
         m_Driver.Dispose();

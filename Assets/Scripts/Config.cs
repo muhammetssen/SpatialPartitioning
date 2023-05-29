@@ -9,6 +9,8 @@ public class Config : MonoBehaviour
     public static int ObjectCount = 10;
     public static string ServerIP = "3.122.49.197";
 
+    public static SolutionTypes SolutionType = SolutionTypes.Naive;
+
     public static float UpdateInterval = 0.01f;
 
     public static bool SingleInstance = false;

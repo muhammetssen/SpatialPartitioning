@@ -35,7 +35,8 @@ public class ServerToServerConnection : MonoBehaviour
     {
         return Config.GetServer2ServerPort(this.clientToServerConnection.index);
     }
-    void DrawCircle(LineRenderer renderer, int steps, float radius){
+    void DrawCircle(LineRenderer renderer, int steps, float radius)
+    {
         renderer.positionCount = steps + 1;
         renderer.useWorldSpace = false;
         renderer.startWidth = 0.2f;
@@ -134,7 +135,7 @@ public class ServerToServerConnection : MonoBehaviour
                                 this.otherObjects.Remove(obj.id);
                             }
                             break;
-                        
+
                         case ServerToServerMessages.InBuffer:
                             var sharedObject = new SerializableObject();
                             sharedObject.Deserialize(ref reader);
@@ -165,7 +166,7 @@ public class ServerToServerConnection : MonoBehaviour
         SerializableObject.SerializeObject(o.gameObject).Serialize(ref writer);
         m_Driver.EndSend(writer);
     }
-        public void AlertServerBuffer(ObjectScript o, uint id)
+    public void AlertServerBuffer(ObjectScript o, uint id)
     {
         if (!out_connections.ContainsKey(id)) return;
         if (!out_connections[id].IsCreated) return;
@@ -199,20 +200,49 @@ public class ServerToServerConnection : MonoBehaviour
                     if (id == this.clientToServerConnection.index) continue;
                     var serverCenter = Config.GetServerCenter(id);
                     var objectCenter = new Tuple<float, float>(o.Value.transform.position.x, o.Value.transform.position.z);
-                    if (!checkBufferOverlap(serverCenter, objectCenter, BUFFER_SIZE)) continue;
+                    if (!DecideHandover(serverCenter, objectCenter, BUFFER_SIZE, id)) continue;
                     AlertServerBuffer(o.Value.GetComponent<ObjectScript>(), id);
                 }
             }
         }
     }
-    private bool checkBufferOverlap(Tuple<float, float> server,Tuple<float, float> other, float radius){
+    private bool DecideHandover(Tuple<float, float> server, Tuple<float, float> other, float radius, uint serverIndex)
+    {
+        switch (Config.SolutionType)
+        {
+            case SolutionTypes.Naive:
+                return true;
+            case SolutionTypes.NaiveWithAOI:
+                return true;
+            case SolutionTypes.ServerBuffering:
+                return checkBufferOverlap(server, other, BUFFER_SIZE);
+            case SolutionTypes.ServerBufferingWithAOI:
+                return checkBufferOverlap(server, other, BUFFER_SIZE);
+            case SolutionTypes.Neighbourhood:
+                return isMyNeighbour(serverIndex);
+            default: return false;
+        }
+    }
+
+    private bool isMyNeighbour(uint serverIndex)
+    {
+        uint my_row = (uint)(this.clientToServerConnection.index / Config.ParcelCount);
+        uint my_col = (uint)(this.clientToServerConnection.index % Config.ParcelCount);
+        uint other_row = (uint)(serverIndex / Config.ParcelCount);
+        uint other_col = (uint)(serverIndex % Config.ParcelCount);
+
+        return Math.Abs(my_row - other_row) == 1 || Math.Abs(my_col - other_col) == 1;
+    }
+
+    private bool checkBufferOverlap(Tuple<float, float> server, Tuple<float, float> other, float radius)
+    {
         return Math.Sqrt(Math.Pow(server.Item1 - other.Item1, 2) + Math.Pow(server.Item2 - other.Item2, 2)) < radius;
     }
 
     private IEnumerator ClearBufferArea(){
         while (true)
         {
-            
+
             yield return new WaitForSeconds(Config.UpdateInterval * 10);
             // foreach (var o in this.otherObjects)
             // {
