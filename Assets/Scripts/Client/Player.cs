@@ -17,8 +17,8 @@ public class Player : MonoBehaviour
         this.ConnectedTo.transform.parent = this.transform;
         camera = GameObject.Find("Main Camera");
 
-        DrawCircle(transform.GetChild(0).gameObject.GetComponent<LineRenderer>(), 50, 4);
-        DrawCircle(transform.GetChild(1).gameObject.GetComponent<LineRenderer>(), 50, 6);
+        DrawCircle(transform.GetChild(0).gameObject.GetComponent<LineRenderer>(), 50, 20);
+        // DrawCircle(transform.GetChild(1).gameObject.GetComponent<LineRenderer>(), 50, 6);
 
     }
 

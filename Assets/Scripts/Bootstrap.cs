@@ -19,6 +19,7 @@ public class Bootstrap : MonoBehaviour
     }
     void Awake()
     {
+        Random.InitState(0); // Make sure that the random numbers are the same for all instances to make the results reproducible
         string[] args = System.Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
