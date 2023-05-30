@@ -22,7 +22,7 @@ public enum ClientToServerMessages : byte
 public class ClientToServerConnection : MonoBehaviour
 {
     [SerializeField]
-    const float AOI = 10f;
+    const float AOI = 20f;
     public uint index = 0;
     public GameObject objectPrefab;
     public Dictionary<uint, GameObject> myObjects;

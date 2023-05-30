@@ -39,6 +39,10 @@ public class Bootstrap : MonoBehaviour
             {
                 if (int.TryParse(args[i + 1], out int ObjectCount)) Config.ObjectCount = ObjectCount;
             }
+            if (args[i] == "-solutionType")
+            {
+                if (int.TryParse(args[i + 1], out int SolutionType)) Config.SolutionType = (SolutionTypes)SolutionType;
+            }
         }
 
         serverCount = Config.ParcelCount * Config.ParcelCount;
@@ -49,7 +53,7 @@ public class Bootstrap : MonoBehaviour
     void Start()
     {
         InitializeGrid();
-
+        Debug.Log($"Server index: {serverIndex}, server count: {serverCount}, is server: {isServer}, solution type: {Config.SolutionType}");
         if (Config.SingleInstance)
         {
 
