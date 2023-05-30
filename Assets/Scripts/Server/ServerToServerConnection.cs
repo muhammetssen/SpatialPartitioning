@@ -51,6 +51,8 @@ public class ServerToServerConnection : MonoBehaviour
     }
     void Start()
     {
+        Debug.Log("ServerToServerConnection, start" + this.getPort().ToString());
+
         in_connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
         out_connections = new Dictionary<uint, NetworkConnection>();
 
@@ -59,7 +61,10 @@ public class ServerToServerConnection : MonoBehaviour
         if (m_Driver.Bind(endpoint) != 0)
             Debug.Log($"Failed to bind to port {endpoint.Port}");
         else
+        {   
             m_Driver.Listen();
+            Debug.Log($"SERVER-{this.getPort()}: Ready to accept connections on port {this.getPort()}");
+        }
 
         // connect to other known servers
         foreach (var index in Bootstrap.serverIndices)
@@ -208,7 +213,7 @@ public class ServerToServerConnection : MonoBehaviour
                     if (id == this.clientToServerConnection.index) continue;
                     var serverCenter = Config.GetServerCenter(id);
                     var objectCenter = new Tuple<float, float>(o.Value.transform.position.x, o.Value.transform.position.z);
-                    if (!DecideHandover(serverCenter, objectCenter, BUFFER_SIZE, id)) continue;
+                    if (!DecideHandover(serverCenter, objectCenter, this.BUFFER_SIZE, id)) continue;
                     AlertServerBuffer(o.Value.GetComponent<ObjectScript>(), id);
                 }
             }
@@ -223,9 +228,9 @@ public class ServerToServerConnection : MonoBehaviour
             case SolutionTypes.NaiveWithAOI:
                 return true;
             case SolutionTypes.ServerBuffering:
-                return checkBufferOverlap(server, other, BUFFER_SIZE);
+                return checkBufferOverlap(server, other, radius);
             case SolutionTypes.ServerBufferingWithAOI:
-                return checkBufferOverlap(server, other, BUFFER_SIZE);
+                return checkBufferOverlap(server, other, radius);
             case SolutionTypes.Neighbourhood:
                 return isMyNeighbour(serverIndex);
             default: return false;

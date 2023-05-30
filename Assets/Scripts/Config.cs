@@ -4,12 +4,12 @@ using UnityEngine;
 public class Config : MonoBehaviour
 {
     public const int ParcelSize = 50;
-    public static int ParcelCount = 3;
+    public static int ParcelCount = 2;
 
     public static int ObjectCount = 10;
     public static string ServerIP = "3.122.49.197";
 
-    public static SolutionTypes SolutionType = SolutionTypes.Naive;
+    public static SolutionTypes SolutionType = SolutionTypes.ServerBuffering;
 
     public static float UpdateInterval = 0.01f;
 
