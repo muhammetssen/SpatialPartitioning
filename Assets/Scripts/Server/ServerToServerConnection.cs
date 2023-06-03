@@ -67,6 +67,8 @@ public class ServerToServerConnection : MonoBehaviour
         }
 
         // connect to other known servers
+        // sleep for 5 seconds
+        System.Threading.Thread.Sleep(5000);
         foreach (var index in Bootstrap.serverIndices)
         {
             if (index == this.clientToServerConnection.index) continue;
@@ -75,9 +77,12 @@ public class ServerToServerConnection : MonoBehaviour
                 end = NetworkEndpoint.LoopbackIpv4;
                 end.Port = Config.GetServer2ServerPort(index);
             #else
-                end = NetworkEndpoint.Parse(Config.ServerIP, Config.GetServer2ServerPort(index));
+                // NetworkEndpoint strictly requires an IP address, not a hostname. Following dns lookup is used in docker deployment.
+                var serverIps = System.Net.Dns.GetHostEntry($"server_{index}");
+                foreach (var serverIp in serverIps.AddressList)
+                    Debug.Log($"server_{index} ip: {serverIp}");
+                end = NetworkEndpoint.Parse(serverIps.AddressList[0].ToString() , Config.GetServer2ServerPort(index));
             #endif
-            // ifi burada mi yapsak
             Debug.Log($"Connecting to {Config.ServerIP} {Config.GetServer2ServerPort(index)} {end.Address}, {end.Port}...");
             var connection = m_Driver.Connect(end);
             out_connections.Add(index, connection);
