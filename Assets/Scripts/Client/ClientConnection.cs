@@ -23,7 +23,7 @@ public class ClientConnection : MonoBehaviour
     public NetworkConnection connection;
     private Dictionary<uint, GameObject> objects = new Dictionary<uint, GameObject>();
     private Dictionary<uint, GameObject> temporaryObjects = new Dictionary<uint, GameObject>();
-
+    private NetworkEndpoint endpoint;
     public static uint serverIndex = 0;
     private uint id = 0;
     void Start()
@@ -36,7 +36,7 @@ public class ClientConnection : MonoBehaviour
 #endif
         // var endpoint = NetworkEndpoint.LoopbackIpv4;
         // use server ip address
-        var endpoint = NetworkEndpoint.Parse(Config.ServerIP, port);
+        this.endpoint = NetworkEndpoint.Parse(Config.ServerIP, port);
         Debug.Log($"Client: Connecting to {endpoint.Address}:{endpoint.Port}");
         Debug.Log($"Client: Connecting to {endpoint.Port}");
         connection = default(NetworkConnection);
@@ -119,7 +119,7 @@ public class ClientConnection : MonoBehaviour
 
                     case ServerToClientMessages.ServerChange:
                         uint newServerId = data.ReadUInt();
-                        var endpoint = NetworkEndpoint.Parse(Config.ServerIP, (ushort)Config.GetClient2ServerPort(newServerId));
+                        this.endpoint = NetworkEndpoint.Parse(Config.ServerIP, (ushort)Config.GetClient2ServerPort(newServerId));
                         // endpoint.Port = (ushort)Config.GetClient2ServerPort(newServerId);
                         Debug.Log($"Client: Received server change from server: {newServerId} {endpoint.Port}");
 
@@ -200,7 +200,17 @@ public class ClientConnection : MonoBehaviour
             catch (System.Exception ex)
             {
 
-                Debug.LogException(ex);
+                Debug.LogError(ex.ToString());
+                Debug.Log(connection.GetState(m1_Driver));
+                if (connection.GetState(m1_Driver) == NetworkConnection.State.Disconnected)
+                {
+
+                    connection = default(NetworkConnection);
+                    connection.Disconnect(m1_Driver);
+
+                    connection = m1_Driver.Connect(endpoint);
+                }
+
                 // throw;
             }
             yield return new WaitForSeconds(Config.UpdateInterval);
