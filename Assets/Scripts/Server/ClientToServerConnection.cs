@@ -22,7 +22,6 @@ public enum ClientToServerMessages : byte
 public class ClientToServerConnection : MonoBehaviour
 {
     [SerializeField]
-    const float AOI = 20f;
     public uint index = 0;
     public GameObject objectPrefab;
     public Dictionary<uint, GameObject> myObjects;
@@ -197,7 +196,7 @@ public class ClientToServerConnection : MonoBehaviour
     {
         if (!(Config.SolutionType == SolutionTypes.NaiveWithAOI || Config.SolutionType == SolutionTypes.ServerBufferingWithAOI)) return true;
         float distance = Vector3.Distance(playerPos, objectPos);
-        if (distance <= AOI) return true;
+        if (distance <= Config.AOIRadius) return true;
         return false;
     }
     void OnDestroy()
