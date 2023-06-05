@@ -15,6 +15,7 @@ public struct SerializableObject : ISerializedObject
     public float VelocityY;
     public float VelocityZ;
 
+    public bool IsBroadcast;
     public void Serialize(ref Unity.Collections.DataStreamWriter writer)
     {
         writer.WriteUInt(id);
@@ -26,6 +27,8 @@ public struct SerializableObject : ISerializedObject
         writer.WriteFloat(VelocityX);
         writer.WriteFloat(VelocityY);
         writer.WriteFloat(VelocityZ);
+
+        writer.WriteByte((byte)(IsBroadcast ? 1 : 0));
     }
     public void Deserialize(ref Unity.Collections.DataStreamReader reader)
     {
@@ -38,6 +41,8 @@ public struct SerializableObject : ISerializedObject
         VelocityX = reader.ReadFloat();
         VelocityY = reader.ReadFloat();
         VelocityZ = reader.ReadFloat();
+
+        IsBroadcast = reader.ReadByte() == 1;
 
     }
     public static SerializableObject SerializeObject(GameObject obj)
@@ -52,6 +57,13 @@ public struct SerializableObject : ISerializedObject
         serializedObject.VelocityX = rb.velocity.x;
         serializedObject.VelocityY = rb.velocity.y;
         serializedObject.VelocityZ = rb.velocity.z;
+
+        serializedObject.IsBroadcast = obj.GetComponent<ObjectScript>().IsBroadcast;
+        if(serializedObject.IsBroadcast)
+        {
+            // set color to red
+            obj.GetComponent<Renderer>().material.color = Color.red;
+        }
 
         return serializedObject;
     }

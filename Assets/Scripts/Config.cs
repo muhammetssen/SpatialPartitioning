@@ -47,13 +47,13 @@ public class Config : MonoBehaviour
     {
         if (Config.planeType == Config.PlaneType.Hexagon)
         {
-            var coors = HexCoordinates.FromParcelIndex((int)serverIndex);
-            return new Tuple<float, float>(coors.X, coors.Z);
+            var coors = HexCoordinates.FromParcelIndex((int)serverIndex).position;
+            return new Tuple<float, float>(coors.x, coors.z);
         }
         else if (Config.planeType == Config.PlaneType.Square)
         {
-            var coors = SquareCoordinates.FromParcelIndex((int)serverIndex);
-            return new Tuple<float, float>(coors.X, coors.Z);
+            var coors = SquareCoordinates.FromParcelIndex((int)serverIndex).position;
+            return new Tuple<float, float>(coors.x, coors.z);
         }
         else
             throw new Exception("Invalid plane type");

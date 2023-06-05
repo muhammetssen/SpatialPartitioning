@@ -148,6 +148,11 @@ public class ServerToServerConnection : MonoBehaviour
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().id = obj.id;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().manager = this.clientToServerConnection;
                             this.clientToServerConnection.myObjects[obj.id].GetComponent<Rigidbody>().velocity = new Vector3(obj.VelocityX, obj.VelocityY, obj.VelocityZ);
+                            if(obj.IsBroadcast){
+                                this.clientToServerConnection.myObjects[obj.id].GetComponent<ObjectScript>().IsBroadcast = true;
+                                this.clientToServerConnection.myObjects[obj.id].GetComponent<Renderer>().material.color = Color.red;
+                            }
+                            
                             if(this.otherObjects.ContainsKey(obj.id))
                             {
                                 this.otherObjects.Remove(obj.id);

@@ -83,6 +83,7 @@ public class ClientToServerConnection : MonoBehaviour
             myObjects[id].GetComponent<ObjectScript>().manager = this;
             myObjects[id].GetComponent<ObjectScript>().id = id;
             myObjects[id].GetComponent<Rigidbody>().velocity = Vector3.left * 12f + Vector3.forward * 24f;
+            myObjects[id].GetComponent<ObjectScript>().IsBroadcast = Random.Range(0, 100) < 30;
         }
     }
 

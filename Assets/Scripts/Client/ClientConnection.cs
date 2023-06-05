@@ -95,6 +95,10 @@ public class ClientConnection : MonoBehaviour
                             var dummy = cube.GetComponent<Dummy>();
                             dummy.SetText(serializedObject.id.ToString());
                             objects.Add(serializedObject.id, cube);
+                            if (serializedObject.IsBroadcast)
+                            {
+                                dummy.GetComponent<Renderer>().material.color = Color.red;
+                            }
                         }
                         objects[serializedObject.id].transform.position = new Vector3(serializedObject.PositionX, serializedObject.PositionY, serializedObject.PositionZ);
                         break;
@@ -111,10 +115,13 @@ public class ClientConnection : MonoBehaviour
                             var dummy = cube.GetComponent<Dummy>();
                             dummy.SetText(serializedTemporaryObject.id.ToString());
                             temporaryObjects.Add(serializedTemporaryObject.id, cube);
+                            if (serializedTemporaryObject.IsBroadcast)
+                            {
+                                dummy.GetComponent<Renderer>().material.color = Color.red;
+                            }
                         }
                         temporaryObjects[serializedTemporaryObject.id].transform.position = new Vector3(serializedTemporaryObject.PositionX, serializedTemporaryObject.PositionY, serializedTemporaryObject.PositionZ);
                         break;
-
 
 
                     case ServerToClientMessages.ServerChange:
@@ -170,7 +177,7 @@ public class ClientConnection : MonoBehaviour
                 Destroy(item.Value);
             }
             objects.Clear();
-            
+
             yield return new WaitForSeconds(Config.UpdateInterval * 10);
         }
     }

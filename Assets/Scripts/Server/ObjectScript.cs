@@ -9,6 +9,7 @@ public class ObjectScript : MonoBehaviour
     public string identifier = "some object";
     public ClientToServerConnection manager;
     public uint id;
+    public bool IsBroadcast = false;
     void FixedUpdate()
     {
         uint expectedServerIndex = Config.GetParcelId(transform.position);
