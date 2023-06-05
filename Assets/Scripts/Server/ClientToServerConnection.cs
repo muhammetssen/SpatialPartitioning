@@ -130,7 +130,8 @@ public class ClientToServerConnection : MonoBehaviour
 
                             foreach (var k in myObjects.Keys)
                             {
-                                if (!DecideUpdate(players[playerId].position, myObjects[k].transform.position)) continue;
+                                ObjectScript objScript = myObjects[k].GetComponent<ObjectScript>();
+                                if (!DecideUpdate(players[playerId].position, myObjects[k].transform.position) && !objScript.IsBroadcast) continue;
                                 m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
                                 writer.WriteByte((byte)ServerToClientMessages.ObjectUpdate);
                                 SerializableObject.SerializeObject(myObjects[k]).Serialize(ref writer);
@@ -141,7 +142,7 @@ public class ClientToServerConnection : MonoBehaviour
                             {
                                 SerializableObject obj = serverToServerConnection.otherObjects[k];
                                 Vector3 pos = new Vector3(obj.PositionX, obj.PositionY, obj.PositionZ);
-                                if (!DecideUpdate(players[playerId].position, pos)) continue;
+                                if (!DecideUpdate(players[playerId].position, pos) && !obj.IsBroadcast) continue;
                                 m_Driver.BeginSend(NetworkPipeline.Null, m_connections[i], out var writer);
                                 writer.WriteByte((byte)ServerToClientMessages.TemporaryObjectUpdate);
                                 serverToServerConnection.otherObjects[k].Serialize(ref writer);

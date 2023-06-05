@@ -218,13 +218,14 @@ public class ServerToServerConnection : MonoBehaviour
             yield return new WaitForSeconds(Config.UpdateInterval);
             foreach (var o in this.clientToServerConnection.myObjects)
             {
+                ObjectScript objScript = o.Value.GetComponent<ObjectScript>();
                 foreach (var id in Bootstrap.serverIndices)
                 {
                     if (id == this.clientToServerConnection.index) continue;
                     var serverCenter = Config.GetServerCenter(id);
                     var objectCenter = new Tuple<float, float>(o.Value.transform.position.x, o.Value.transform.position.z);
-                    if (!DecideHandover(serverCenter, objectCenter, this.BUFFER_SIZE, id)) continue;
-                    AlertServerBuffer(o.Value.GetComponent<ObjectScript>(), id);
+                    if (!DecideHandover(serverCenter, objectCenter, this.BUFFER_SIZE, id) && !objScript.IsBroadcast) continue;
+                    AlertServerBuffer(objScript, id);
                 }
             }
         }
