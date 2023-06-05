@@ -39,6 +39,23 @@ public class Bootstrap : MonoBehaviour
             {
                 if (int.TryParse(args[i + 1], out int ObjectCount)) Config.ObjectCount = ObjectCount;
             }
+            if (args[i] == "-solutionType")
+            {
+                if (int.TryParse(args[i + 1], out int SolutionType)) Config.SolutionType = (SolutionTypes)SolutionType;
+            }
+            if (args[i] == "-parcelType")
+            {
+                string planeType =  args[i + 1].ToLower();
+                if (planeType == "square") Config.planeType = Config.PlaneType.Square;
+                else if (planeType == "hexagon") Config.planeType = Config.PlaneType.Hexagon;
+                Debug.Log("Plane type: " + Config.planeType.ToString());
+            }
+            if (args[i] == "-AOIRadius")
+            {
+                if (float.TryParse(args[i + 1], out float AOIBuffer)) Config.AOIRadius = AOIBuffer;
+            }
+
+
         }
 
         serverCount = Config.ParcelCount * Config.ParcelCount;
@@ -49,7 +66,7 @@ public class Bootstrap : MonoBehaviour
     void Start()
     {
         InitializeGrid();
-
+        Debug.Log($"Server index: {serverIndex}, server count: {serverCount}, is server: {isServer}, solution type: {Config.SolutionType}");
         if (Config.SingleInstance)
         {
 

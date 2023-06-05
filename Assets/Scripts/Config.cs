@@ -10,6 +10,7 @@ public class Config : MonoBehaviour
     public static string ServerIP = "3.122.49.197";
 
     public static SolutionTypes SolutionType = SolutionTypes.ServerBuffering;
+    public static float AOIRadius = 20f;
 
     public static float UpdateInterval = 0.01f;
 
@@ -28,13 +29,13 @@ public class Config : MonoBehaviour
     }
 
     public static ushort GetClient2ServerPort(uint serverIndex)
-    {   
-        var p = (ushort)(10000 + serverIndex*2);
-        #if UNITY_WEBGL
+    {
+        var p = (ushort)(10000 + serverIndex * 2);
+#if UNITY_WEBGL
             return (ushort)(p + 1);
-        #else
-            return p;
-        #endif
+#else
+        return p;
+#endif
     }
 
     public static ushort GetServer2ServerPort(uint serverIndex)
@@ -44,7 +45,19 @@ public class Config : MonoBehaviour
 
     public static Tuple<float, float> GetServerCenter(uint serverIndex)
     {
-        return new Tuple<float, float>((serverIndex / Config.ParcelCount) * Config.ParcelSize, (serverIndex % Config.ParcelCount) * Config.ParcelSize);
+        if (Config.planeType == Config.PlaneType.Hexagon)
+        {
+            var coors = HexCoordinates.FromParcelIndex((int)serverIndex);
+            return new Tuple<float, float>(coors.X, coors.Z);
+        }
+        else if (Config.planeType == Config.PlaneType.Square)
+        {
+            var coors = SquareCoordinates.FromParcelIndex((int)serverIndex);
+            return new Tuple<float, float>(coors.X, coors.Z);
+        }
+        else
+            throw new Exception("Invalid plane type");
+
     }
 
     public static float GetBufferSize()
