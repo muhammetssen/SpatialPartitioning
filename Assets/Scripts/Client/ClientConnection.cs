@@ -93,11 +93,11 @@ public class ClientConnection : MonoBehaviour
                             var cube = Instantiate(Resources.Load<GameObject>("Dummy"));
                             // cube.transform.parent = this.transform;
                             var dummy = cube.GetComponent<Dummy>();
-                            dummy.SetText(serializedObject.id.ToString());
+                            // dummy.SetText(serializedObject.id.ToString());
                             objects.Add(serializedObject.id, cube);
                             if (serializedObject.IsBroadcast)
                             {
-                                dummy.GetComponent<Renderer>().material.color = Color.red;
+                                dummy.GetComponent<Renderer>().material.color = Color.blue;
                             }
                         }
                         objects[serializedObject.id].transform.position = new Vector3(serializedObject.PositionX, serializedObject.PositionY, serializedObject.PositionZ);
@@ -113,11 +113,11 @@ public class ClientConnection : MonoBehaviour
                             var cube = Instantiate(Resources.Load<GameObject>("Dummy"));
                             // cube.transform.parent = this.transform;
                             var dummy = cube.GetComponent<Dummy>();
-                            dummy.SetText(serializedTemporaryObject.id.ToString());
+                            // dummy.SetText(serializedTemporaryObject.id.ToString());
                             temporaryObjects.Add(serializedTemporaryObject.id, cube);
                             if (serializedTemporaryObject.IsBroadcast)
                             {
-                                dummy.GetComponent<Renderer>().material.color = Color.red;
+                                dummy.GetComponent<Renderer>().material.color = Color.blue;
                             }
                         }
                         temporaryObjects[serializedTemporaryObject.id].transform.position = new Vector3(serializedTemporaryObject.PositionX, serializedTemporaryObject.PositionY, serializedTemporaryObject.PositionZ);
