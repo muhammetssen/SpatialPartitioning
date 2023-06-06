@@ -178,7 +178,7 @@ public class ClientConnection : MonoBehaviour
             }
             objects.Clear();
 
-            yield return new WaitForSeconds(Config.UpdateInterval * 10);
+            yield return new WaitForSeconds(Config.UpdateInterval * 50);
         }
     }
     private IEnumerator SendPingToServer()
